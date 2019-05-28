@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C0AC897A229C9BCE00FAEC28 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AC8979229C9BCE00FAEC28 /* main.swift */; };
+		C0AC8981229DE8F300FAEC28 /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AC8980229DE8F300FAEC28 /* SwiftyJSON.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		C0AC8976229C9BCE00FAEC28 /* Dubbledecker Data Cleaner */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Dubbledecker Data Cleaner"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0AC8979229C9BCE00FAEC28 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		C0AC8980229DE8F300FAEC28 /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				C0AC8979229C9BCE00FAEC28 /* main.swift */,
+				C0AC8980229DE8F300FAEC28 /* SwiftyJSON.swift */,
 			);
 			path = "Dubbledecker Data Cleaner";
 			sourceTree = "<group>";
@@ -120,6 +123,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C0AC897A229C9BCE00FAEC28 /* main.swift in Sources */,
+				C0AC8981229DE8F300FAEC28 /* SwiftyJSON.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
