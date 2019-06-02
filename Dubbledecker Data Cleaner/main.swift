@@ -12,6 +12,7 @@ func startCoordination() {
     
     //Get latest bus IDs from routes
     let routesURL = URL(string: "https://api.tfl.gov.uk/Line/Mode/bus/Route/")
+    var giantRouteDictionary : Dictionary<String, Any> = [:]
     
     URLSession.shared.dataTask(with:routesURL!, completionHandler: {(data, response, error) in
         guard let data = data, error == nil else { return }
@@ -27,56 +28,52 @@ func startCoordination() {
                 let routeID: String = routeDict["id"] as! String
                 routeIDArray.append(routeID)
             }
-            print("✅ routeIDArray")
-            
+            print("✅ Got array of Route IDs")
+            let routeIDArrayCount = routeIDArray.count
+
             // get all sequences for each id
             for sequence in routeIDArray {
                 
                 let sequenceURL = URL(string: "https://api.tfl.gov.uk/Line/\(sequence)/Route/Sequence/all")
                 
-                URLSession.shared.dataTask(with:sequenceURL!, completionHandler: {(data, response, error) in
+                var request = URLRequest(url: sequenceURL!)
+                request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
+                
+                URLSession.shared.dataTask(with:request, completionHandler: {(data, response, error) in
                     guard let data = data, error == nil else { return }
+                    
                     do {
+                        print("Starting Request")
                         let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as! Dictionary<String, Any>
-                        let sequence = json as Dictionary<String, Any>
-                        let sequenceID: String = sequence["lineId"] as! String
+                        let sequenceJSON = json as Dictionary<String, Any>
+                        let sequenceID: String = sequenceJSON["lineId"] as! String
                         
-                        var jsonData: Data!
-                        do {
-                            jsonData = try JSONSerialization.data(withJSONObject: sequence, options: JSONSerialization.WritingOptions())
-                            let jsonString = String(data: jsonData as Data, encoding: String.Encoding.utf8)
-                            print("✅ Created \(sequenceID) String")
-                        } catch let error as NSError {
-                            print("Array to JSON conversion failed: \(error.localizedDescription)")
+                        let sequenceDictionary : Dictionary = [sequenceID:sequenceJSON]
+                        giantRouteDictionary = giantRouteDictionary.merging(sequenceDictionary) { $1 }
+                        
+                        print("👉 Added \(sequenceID) to Giant Dictionary")
+                        let giantRouteDictionaryCount = giantRouteDictionary.count
+                        print("🏋️‍♀️ \(giantRouteDictionaryCount) / \(routeIDArrayCount) objects in Giant Dictionary")
+                        
+                        if giantRouteDictionaryCount == routeIDArrayCount {
+                            
+                            print("✅ Giant Dictionary Created")
+                            writeDictionaryToFile(dict:giantRouteDictionary)
                         }
-                        
-                        // Write that JSON to the file created earlier
-                        let jsonFilePath = getDocumentsDirectory().appendingPathComponent("\(sequence).json")
-                        do {
-                            let file = try FileHandle(forWritingTo: jsonFilePath)
-                            file.write(jsonData)
-                            print("✅ Wrote \(sequence) to disk")
-                        } catch let error as NSError {
-                            print("Couldn't write to file: \(error.localizedDescription)")
-                        }
-                        
+//
                     } catch let error as NSError {
                         print(error)
                     }
                 }).resume()
             }
             
+
+            
+            
         } catch let error as NSError {
             print(error)
         }
     }).resume()
-    
-    
-    
-    
-    // Infinitely run the main loop to wait for our request.
-    // Only necessary if you are testing in the command line.
-    RunLoop.main.run()
 }
 
 func getDocumentsDirectory() -> URL {
@@ -84,4 +81,34 @@ func getDocumentsDirectory() -> URL {
     return paths[0]
 }
 
+func writeDictionaryToFile(dict: Dictionary<String, Any>) {
+    
+    var jsonData: Data!
+    var jsonString: String!
+    do {
+        jsonData = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
+        jsonString = String(data: jsonData as Data, encoding: String.Encoding.utf8)
+    } catch let error as NSError {
+        print("Creating strings failed: \(error.localizedDescription)")
+    }
+
+    // Start writing file
+    let jsonFile = "db.json"
+
+    if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+
+        let fileURL = dir.appendingPathComponent("DDBusSequences").appendingPathComponent(jsonFile)
+        //writing
+        do {
+            try jsonString.write(to: fileURL, atomically: false, encoding: .utf8)
+            print("💥💥💥 Wrote Dictionary to file 💥💥💥")
+            print("👌 You can now kill the app 👌")
+        }
+        catch {/* error handling here */}
+    }
+}
+
 startCoordination()
+// Infinitely run the main loop to wait for our request.
+// Only necessary if you are testing in the command line.
+RunLoop.main.run()
